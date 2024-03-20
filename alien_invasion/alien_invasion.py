@@ -61,6 +61,7 @@ class AlienInvasion:
         # Watch for keyboard and mouse events.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                self._save_high_score()  # Save the high score before exiting
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 self._check_keydown_events(event)       
@@ -82,6 +83,7 @@ class AlienInvasion:
             self.stats.reset_stats()
             self.sb.prep_score()
             self.sb.prep_level()
+            self.sb.prep_ships()
             self.game_active = True
             
             # Get rid of any remaining bullets and aliens.
@@ -102,6 +104,7 @@ class AlienInvasion:
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = True
         elif event.key == pygame.K_q:
+            self._save_high_score()  # Save the high score before exiting
             sys.exit()
         elif event.key == pygame.K_SPACE:
             self._fire_bullet()
@@ -153,9 +156,10 @@ class AlienInvasion:
             
     def _ship_hit(self):
         """Respond to the ship being hit by an alien."""
-        # Decrement ships_left.
         if self.stats.ships_left > 0:
+            # Decrement ships/lives left, and update scoreboard.
             self.stats.ships_left -= 1
+            self.sb.prep_ships()
             
             # Get rid of any remaining bullets and aliens.
             self.bullets.empty()
@@ -246,6 +250,11 @@ class AlienInvasion:
         
         # Make the most recently drawn screen visible.
         pygame.display.flip()
+        
+    def _save_high_score(self):
+        """Save the high score to a file."""
+        with open('high_score.txt', 'w') as file:
+            file.write(str(self.stats.high_score))
             
 if __name__ == '__main__':
     # Make a game instance, and run the game.
